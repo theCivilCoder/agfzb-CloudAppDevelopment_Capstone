@@ -1,11 +1,11 @@
   applications:
-  - name: djangoapp
+  - name: CarDealershipApp
     routes:
-      - route: $HOST.$DOMAIN
+      - route: zhuyj.apic.mybluemix.net   
     memory: 128M
     buildpack: python_buildpack
-  - name: djangoapp-nginx
+  - name: CarDealershipApp-nginx
     routes:
-      - route: $HOST.$DOMAIN/static
+      - route: zhuyj.apic.mybluemix.net/static
     memory: 128M
     buildpack: staticfile_buildpack
