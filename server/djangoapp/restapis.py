@@ -12,12 +12,16 @@ def get_request(url, **kwargs):
     print(kwargs)
     print(f"GET from url: {url}")
     
-    try:
-        print(">>> try to read database")
-        response = requests.get(url, param=kwargs, headers={'Content-Type': 'application/json'})
-    except: 
-        #if any errors occurs
-        print("Network Exception Occurred, GET request did not succeed.")
+    print(">>> try to read database")
+    response = requests.get(url, params=kwargs, headers={'Content-Type': 'application/json'})
+
+
+    # try:
+    #     print(">>> try to read database")
+    #     response = requests.get(url, param=kwargs, headers={'Content-Type': 'application/json'})
+    # except: 
+    #     #if any errors occurs
+    #     print("Network Exception Occurred, GET request did not succeed.")
     
     status_code = response.status_code
     print(f"Status: {status_code}")
@@ -49,16 +53,17 @@ def post_request(url, payload, **kwargs):
 # - Parse JSON results into a CarDealer object list
 def get_dealers_from_cf(url, **kwargs):
     results = []
-    json_result = get_request(url, **kwargs)
+    json_result = get_request(url)
+    print(f">>>> json_result: '{json_result}'")
     if json_result:
         #entries list of the json_result is the list of dealerships
         dealers = json_result["entries"]
 
         #create a dealer object for each entry
         for dealer in dealers:
-            dealer_obj = CarDealer(id=dealer["id"], city=dealer["city"], state=dealer["state"], st=dealer["st"],
-                                        address=dealer["address"], zip=dealer["zip"], lat=dealer["lat"], long=dealer["long"],
-                                        full_name=dealer_doc["full_name"])
+            dealer_obj = CarDealer(CDid=dealer["id"], city=dealer["city"], state=dealer["state"], st=dealer["st"],
+                                        address=dealer["address"], zipAd=dealer["zip"], lat=dealer["lat"], longit=dealer["long"],
+                                        full_name=dealer["full_name"])
             results.append(dealer_obj)
 
     return results
