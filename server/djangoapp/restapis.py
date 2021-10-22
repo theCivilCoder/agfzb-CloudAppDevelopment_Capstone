@@ -56,7 +56,8 @@ def get_dealers_from_cf(url, **kwargs):
         #create a dealer object for each entry
         for dealer in dealers:
             dealer_obj = CarDealer(id=dealer["id"], city=dealer["city"], state=dealer["state"], st=dealer["st"],
-                                        address=dealer["address"], zip=dealer["zip"], lat=dealer["lat"], long=dealer["long"])
+                                        address=dealer["address"], zip=dealer["zip"], lat=dealer["lat"], long=dealer["long"],
+                                        full_name=dealer_doc["full_name"])
             results.append(dealer_obj)
 
     return results

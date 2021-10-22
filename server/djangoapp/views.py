@@ -4,11 +4,14 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
+from .restapis import get_dealers_from_cf, get_dealer_by_state, get_dealer_reviews_from_cf, post_request, get_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
 import logging
 import json
+
+from datetime import datetime
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -88,14 +91,64 @@ def registration_request(request):
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
-        return render(request, 'djangoapp/index.html', context)
+        # return render(request, 'djangoapp/index.html', context)
+        url = "https:zhuyj.apic.bluemix.net/api/dealership"
+        #get dealers from the URL
+        
+        #if state was given as a parameter then get the entries related to that 'state'
+        if "state" in request.GET:
+            dealerships = get_dealer_by_state(url, state=request.GET["state"])
+        
+        #else, get all dealerships
+        else:
+            dealerships = get_dealers_from_cf(url)
+
+        context['dealerships'] = dealerships
+        return render(request, 'djangoapp/index.html', context)    
+
 
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
-# def get_dealer_details(request, dealer_id):
-# ...
+def get_dealer_details(request, dealer_id):
+    context = {}
+    if request.method == "GET":
+        url = "https:zhuyj.apic.bluemix.net/api/review"
+        dealer = get_dealers_from_cf(url, dealerId=dealer_id)[0]
+        context['dealer'] = dealer
+        reviews = get_dealer_reviews_from_cf(url, dealerId=dealer_id)
+        context['reviews'] = reviews
+    return render(request, 'djangoapp/dealer_details.html', context)
+
+    
+
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_review(request, dealer_id):
+    if request.method == "GET":
+        url = "https:zhuyj.apic.bluemix.net/api/dealership"
 
+        context = {
+            "cars": CarModel.objects.all(),
+            "dealer": get_dealers_from_cf(url, dealerId=dealer_id)[0],
+        }
+        return render(request, 'djangoapp/add_review.html', context)
+
+    if request.method == "POST":
+        form = request.POST
+        review = {
+            "name": f"{request.user.first_name} {request.user.last_name}",
+            "dealership": dealer_id,
+            "review": form["content"],
+            "purchase": form["purchase"],
+            }
+        if form["purchase"]:
+            review["purchasedate"] = datetime.strptime(form["purchasedate"]), "%m/%d/%Y").isoformat()
+            car = CarModel.objects.get(pk=form["car"])
+            review["car_make"] = car.car_make.name
+            review["car_model"] = car.name
+            review["car_year"]= car.year.strftime("%Y")
+
+        json_payload = {"review": review}
+        url_r = "https:zhuyj.apic.bluemix.net/api/review"
+        post_request(url_r, json_payload, dealerId=dealer_id)
+    return redirect("djangoapp:dealer_details", dealerId=dealer_id)    
