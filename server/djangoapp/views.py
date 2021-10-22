@@ -3,8 +3,9 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
+from .models import CarModel
 # from .restapis import related methods
-from .restapis import get_dealers_from_cf, get_dealer_by_state, get_dealer_reviews_from_cf, post_request, get_request
+from .restapis import get_dealers_from_cf, get_dealers_by_state_from_cf, get_dealer_reviews_from_cf, post_request, get_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -92,16 +93,19 @@ def get_dealerships(request):
     context = {}
     if request.method == "GET":
         # return render(request, 'djangoapp/index.html', context)
-        url = "https:zhuyj.apic.bluemix.net/api/dealership"
+        url = "https://14c3400c.us-south.apigw.appdomain.cloud/api/dealership"
         #get dealers from the URL
         
         #if state was given as a parameter then get the entries related to that 'state'
         if "state" in request.GET:
+            print(">>>> state was found in GET request")
             dealerships = get_dealer_by_state(url, state=request.GET["state"])
         
         #else, get all dealerships
         else:
+            print(">>> getting all dealerships")
             dealerships = get_dealers_from_cf(url)
+            print(">>> SUCCESS, got all dealerships")
 
         context['dealerships'] = dealerships
         return render(request, 'djangoapp/index.html', context)    
@@ -142,7 +146,7 @@ def add_review(request, dealer_id):
             "purchase": form["purchase"],
             }
         if form["purchase"]:
-            review["purchasedate"] = datetime.strptime(form["purchasedate"]), "%m/%d/%Y").isoformat()
+            review["purchasedate"] = datetime.strptime(form["purchasedate"], "%Y-%m-%d")
             car = CarModel.objects.get(pk=form["car"])
             review["car_make"] = car.car_make.name
             review["car_model"] = car.name

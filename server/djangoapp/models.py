@@ -9,6 +9,12 @@ from django.utils.timezone import now
 # - Description
 # - Any other fields you would like to include in car make model
 # - __str__ method to print a car make object
+class CarMake(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=300)
+
+    def __str__(self):
+        return self.name 
 
 
 # <HINT> Create a Car Model model `class CarModel(models.Model):`:
@@ -19,9 +25,45 @@ from django.utils.timezone import now
 # - Year (DateField)
 # - Any other fields you would like to include in car model
 # - __str__ method to print a car make object
+class CarModel(models.Model):
+    car_make = models.ForeignKey(CarMake, on_delete=models.CASCADE)
+    dealerId = models.IntegerField(null=True)
+    name = models.CharField(max_length=50)
+    car_type = models.CharField(max_length=10, choices = ( ("Sedan", "Sedan"), ("SUV", "SUV"), ("WAGON", "WAGON") ))    
+    year = models.DateField()
 
+    def __str__(self):
+        return self.name
 
 # <HINT> Create a plain Python class `CarDealer` to hold dealer data
+class CarDealer:
+    def __init__(slef, CDid, city, state, st, address, zipAd, lat, longit, full_name):
+        self.id = CDid
+        self.city = city
+        self.state = state
+        self.st = st
+        self.address = address
+        self.zip = zipAd
+        self.lat = lat
+        self.long = longit
+        self.full_name = full_name
 
+    def __str__(self):
+        return "Dealer name: " + self.full_name
 
 # <HINT> Create a plain Python class `DealerReview` to hold review data
+class DealerReview:
+    def __init__(self, name, dealership, review, purchase, Rid, purchase_date=None, car_make=None, car_model=None, car_year=None):
+        self.name = name
+        self.dealership = dealership
+        self.purchase = purchase
+        self.review = review       
+        self.id = Rid
+
+        self.purchase_date = purchase_date
+        self.car_make = car_make 
+        self.car_model = car_model 
+        self.car_year = car_year 
+
+    def __str__(self):
+        return "Review: " + self.review

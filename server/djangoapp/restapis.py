@@ -13,8 +13,9 @@ def get_request(url, **kwargs):
     print(f"GET from url: {url}")
     
     try:
+        print(">>> try to read database")
         response = requests.get(url, param=kwargs, headers={'Content-Type': 'application/json'})
-    except:
+    except: 
         #if any errors occurs
         print("Network Exception Occurred, GET request did not succeed.")
     
