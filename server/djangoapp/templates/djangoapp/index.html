@@ -23,6 +23,27 @@
                 <a class="navbar-brand" href="{% url 'djangoapp:contact' %}">Contact</a>
             </div>
 
+            {% if user.is_authenticated is False %}
+            <form action="{% url 'djangoapp:login' %}"  method="POST">
+                {% csrf_token %}
+                <input type="text" name="usernameInput" placeholder="username">
+                <input type="password" name="passwordInput" placeholder="password">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <form action="{% url 'djangoapp:registration' %}"  method="GET">
+                <button type="submit" class="btn btn-light">Sign Up</button>
+            </form>
+            {% else %}
+            <form action="{% url 'djangoapp:logout' %}"  method="GET">
+                ({{user.username}})
+                <button type="submit" class="btn btn-light">Logout</button>
+            </form>
+
+            <!-- <form action="% url 'djangoapp:logout' %" method="GET">
+                <button type="submit" class="btn btn-light">Logout</button>
+            </form> -->
+            {% endif %}
+
         </div>
         
     </nav> 
