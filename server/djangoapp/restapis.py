@@ -97,8 +97,10 @@ def get_dealer_reviews_from_cf(url, **kwargs):
     if json_result:
         # url will return entries for reviews for a particular dealer
         reviews = json_result["entries"]
+        
         # For each dealer object
         for review in reviews:
+            print("********* Inside of review:  ", review)
             # Create a CarDealer object with values in `doc` object
             review_obj = DealerReview( Rid=review["id"], name=review["name"], dealership=review["dealership"],
                 review=review["review"], purchase=review["purchase"]
@@ -109,9 +111,9 @@ def get_dealer_reviews_from_cf(url, **kwargs):
             if "car_make" in review:    
                 review_obj.car_make=review["car_make"], 
             if "car_model" in review:    
-                car_model=review["car_model"]
+                review_obj.car_model=review["car_model"]
             if "car_year" in review:    
-                car_year=review["car_year"]   
+                review_obj.car_year=review["car_year"]   
 
             # Assign Watson NLU review sentiment result
             review_obj.sentiment = analyze_review_sentiments(review_obj.review)
