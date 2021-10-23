@@ -5,7 +5,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 from .models import CarModel
 # from .restapis import related methods
-from .restapis import get_dealers_from_cf, get_dealers_by_state_from_cf, get_dealer_reviews_from_cf, post_request, get_request
+# from .restapis import get_dealers_from_cf, get_dealers_by_state_from_cf, get_dealer_reviews_from_cf, post_request, get_request
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request, get_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -93,7 +94,7 @@ def get_dealerships(request):
     context = {}
     if request.method == "GET":
         # return render(request, 'djangoapp/index.html', context)
-        url = "https://14c3400c.us-south.apigw.appdomain.cloud/api/dealership"
+        url = "https://d480556a.us-south.apigw.appdomain.cloud/api/dealership"
         #get dealers from the URL
         
         #if state was given as a parameter then get the entries related to that 'state'
@@ -107,6 +108,10 @@ def get_dealerships(request):
             dealerships = get_dealers_from_cf(url)
             print(">>> SUCCESS, got all dealerships")
 
+        # dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        # # Return a list of dealer short name
+        # return HttpResponse(dealer_names)
+
         context['dealerships'] = dealerships
         return render(request, 'djangoapp/index.html', context)    
 
@@ -116,43 +121,50 @@ def get_dealerships(request):
 def get_dealer_details(request, dealer_id):
     context = {}
     if request.method == "GET":
-        url = "https:zhuyj.apic.bluemix.net/api/review"
-        dealer = get_dealers_from_cf(url, dealerId=dealer_id)[0]
-        context['dealer'] = dealer
+        url = "https://d480556a.us-south.apigw.appdomain.cloud/api/reviews"
         reviews = get_dealer_reviews_from_cf(url, dealerId=dealer_id)
-        context['reviews'] = reviews
-    return render(request, 'djangoapp/dealer_details.html', context)
+        
+    # If response does not have error message
+    if "msg" not in reviews:
+        # review_text = " ".join([review.review + ": " + " \n" for review in reviews])
+        review_text = " ".join([review.review + ": " + review.sentiment + " | " for review in reviews])
+        return HttpResponse(review_text)
+    else:
+        # Return response error
+        return HttpResponse(str(reviews))
+
+    # return render(request, 'djangoapp/dealer_details.html', context)
 
     
 
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
-    if request.method == "GET":
-        url = "https:zhuyj.apic.bluemix.net/api/dealership"
+    url = "https://d480556a.us-south.apigw.appdomain.cloud/api/review"
+    # if request.method == "GET":
+    #     context = {
+    #         "cars": CarModel.objects.all(),
+    #         "dealer": get_dealers_from_cf(url, dealerId=dealer_id)[0],
+    #     }
+    #     return render(request, 'djangoapp/add_review.html', context)
 
-        context = {
-            "cars": CarModel.objects.all(),
-            "dealer": get_dealers_from_cf(url, dealerId=dealer_id)[0],
-        }
-        return render(request, 'djangoapp/add_review.html', context)
+    if request.user.is_authenticated and request.method == "POST":
+        url = "https://d480556a.us-south.apigw.appdomain.cloud/api/review"
+        review = dict()
+        review["id"] = request.POST("id")
+        review["time"] = request.POST("time")
+        review["dealership"] = dealer_id
+        review["review"] = request.POST("review")
+        review["purchase"] = request.POST("purchase")
+        review["purchase_date"] = request.POST("purchase_date")
+        review["car_make"] = request.POST("car_make")
+        review["car_model"] = request.POST("car_model")
+        review["car_year"] = request.POST("car_year")
+        
+        json_payload = {review:review}
+        response = post_request(url, json_payload)
+        return HttpResponse(str(response))
 
-    if request.method == "POST":
-        form = request.POST
-        review = {
-            "name": f"{request.user.first_name} {request.user.last_name}",
-            "dealership": dealer_id,
-            "review": form["content"],
-            "purchase": form["purchase"],
-            }
-        if form["purchase"]:
-            review["purchasedate"] = datetime.strptime(form["purchasedate"], "%Y-%m-%d")
-            car = CarModel.objects.get(pk=form["car"])
-            review["car_make"] = car.car_make.name
-            review["car_model"] = car.name
-            review["car_year"]= car.year.strftime("%Y")
-
-        json_payload = {"review": review}
-        url_r = "https:zhuyj.apic.bluemix.net/api/review"
-        post_request(url_r, json_payload, dealerId=dealer_id)
-    return redirect("djangoapp:dealer_details", dealerId=dealer_id)    
+    else:
+        return HttpResponse("Only authenticated users can submit reviews")
+    # return redirect("djangoapp:dealer_details", dealerId=dealer_id)    
