@@ -1,0 +1,20 @@
+These are the code for the actions used to get the dealerships
+
+URL: 
+https://d480556a.us-south.apigw.appdomain.cloud/api/review?dealerId=23
+
+
+Sequence Name:
+read-reviews-for-dealership-by-id
+
+
+Actions:
+A1 - set-read-inputs-reviews
+A2 - exec-query-find
+A3 - format-reviews-docs
+
+
+
+
+
+

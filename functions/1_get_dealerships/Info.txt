@@ -1,0 +1,19 @@
+These are the code for the actions used to get the dealerships
+
+URL: 
+https://d480556a.us-south.apigw.appdomain.cloud/api/dealership
+https://d480556a.us-south.apigw.appdomain.cloud/api/dealership?state=CA
+
+Sequence Name:
+CarDealership/read-dealerships-entries-options-sequence
+
+Actions:
+A1 - set-read-input
+A2 - exec-query-find
+A3 - format-dealership-entries-QuerySearch
+
+
+
+
+
+

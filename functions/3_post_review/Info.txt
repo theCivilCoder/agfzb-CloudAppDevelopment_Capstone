@@ -1,0 +1,34 @@
+These are the code for the actions used to get the dealerships
+
+URL: 
+https://d480556a.us-south.apigw.appdomain.cloud/api/review
+I tested this on IBM Sequence "Invoke with Parameters"
+using the following Parameter
+
+{"review":{
+    "id":100,
+    "name":"Bob Anderson",
+    "dealership":23,
+    "review":"This is a brand new entry saying the car is amazing!",
+    "purchase":true,
+    "purchase_date": "10/21/2021",
+    "car_make":"Toyota",
+    "car_model":"Corolla",
+    "car_year":2009
+}
+}
+SUCCESSFULLY ADDED new document on Cloudant "Reviews" database
+
+Sequence Name:
+post_review_sequence
+
+Actions:
+A1 - post_review_1_prep_entry
+A2 - create-document
+A3 - post-review-check
+
+
+
+
+
+
